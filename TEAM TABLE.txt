@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX 20
+#define NAME_LEN 30
+/* one team record */
+struct Team {
+    char name[NAME_LEN];
+    int points;
+};
+struct Team team[MAX];   /* all teams */
+int n = 0;               /* number of teams added */
+/* Function 1: add a new team (points start at 0) */
+void addTeam(void)
+{
+    char name[NAME_LEN];
+    int i;
+    if (n == MAX) {
+        printf("Table is full.\n");
+        return;
+    }
+    printf("Enter team name: ");
+    scanf(" %29[^\n]", name);
+    /* reject a duplicate name */
+    for (i = 0; i < n; i++) {
+        if (strcmp(team[i].name, name) == 0) {
+            printf("Team already exists.\n");
+            return;
+        }
+    }
+    strcpy(team[n].name, name);
+    team[n].points = 0;
+    n++;
+    printf("Team added.\n");
+}
+/* Function 2: enter a match result (winner gets 2 points) */
+void enterResult(void)
+{
+    int i, sno;
+    if (n == 0) {
+        printf("No teams added yet.\n");
+        return;
+    }
+    for (i = 0; i < n; i++) {
+        printf("%d. %s\n", i + 1, team[i].name);
+    }
+    printf("Enter S.No. of winning team: ");
+    if (scanf("%d", &sno) != 1) {
+        while (getchar() != '\n');
+        printf("Invalid input.\n");
+        return;
+    }
+    if (sno < 1 || sno > n) {
+        printf("Invalid S.No.\n");
+        return;
+    }
+    team[sno - 1].points += 2;
+    printf("%s wins: 2 points added.\n", team[sno - 1].name);
+}
+/* Function 3: view points table, highest points first */
+void viewTable(void)
+{
+    int idx[MAX], i, j, temp;
+    if (n == 0) {
+        printf("No teams added yet.\n");
+        return;
+    }
+    for (i = 0; i < n; i++) {
+        idx[i] = i;
+    }
+    /* bubble sort of indices by points (descending) */
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - 1 - i; j++) {
+            if (team[idx[j]].points < team[idx[j + 1]].points) {
+                temp = idx[j];
+                idx[j] = idx[j + 1];
+                idx[j + 1] = temp;
+            }
+        }
+    }
+    printf("\nRank  S.No.  %-20s Points\n", "Team");
+    for (i = 0; i < n; i++) {
+        printf("%-5d %-6d %-20s %d\n", i+1, idx[i]+1, team[idx[i]].name, team[idx[i]].points);
+    }
+}
+int main(void)
+{
+    int choice;
+    do {
+        printf("\n==== TOURNAMENT POINTS TABLE ====\n");
+        printf("1. Add team\n");
+        printf("2. Enter match result\n");
+        printf("3. View points table\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        if (scanf("%d", &choice) != 1) {
+            while (getchar() != '\n');
+            choice = 0;
+        }
+        switch (choice) {
+        case 1:
+            addTeam();
+            break;
+        case 2:
+            enterResult();
+            break;
+        case 3:
+            viewTable();
+            break;
+        case 4:
+            printf("Exiting program.\n");
+            break;
+        default:
+            printf("Invalid choice.\n");
+        }
+    } while (choice != 4);
+    return 0;
+}
